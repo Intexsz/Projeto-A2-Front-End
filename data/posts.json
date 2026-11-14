@@ -1,0 +1,145 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-11-05",
+  "note": "Textos editoriais de demonstração escritos para o Projeto Fênix. São conteúdos explicativos (não notícias) e estão identificados como demonstração até serem revisados.",
+  "posts": [
+    {
+      "id": "p-como-ler-controles",
+      "slug": "como-ler-controles-no-projeto-fenix",
+      "title": "Como ler as informações de controles no Projeto Fênix",
+      "excerpt": "Obrigatório, compatível ou não verificado: entenda o que cada indicador de teclado, mouse, controle e toque significa.",
+      "category": "Guias",
+      "tags": ["controles", "guia", "compatibilidade"],
+      "publishedAt": "2026-11-05",
+      "updatedAt": "2026-11-05",
+      "author": "Equipe Projeto Fênix",
+      "readingMinutes": 3,
+      "cover": { "type": "generated", "motif": "circuit", "seed": "post-controles" },
+      "featured": true,
+      "demo": true,
+      "body": [
+        { "type": "p", "text": "Cada jogo do catálogo mostra quatro tipos de controle: teclado, mouse, controle (gamepad) e tela de toque. Para cada um deles, o Projeto Fênix registra um de três estados." },
+        { "type": "h", "text": "Os três estados" },
+        { "type": "ul", "items": [
+          "Obrigatório: o jogo exige esse controle para ser jogado.",
+          "Compatível: o jogo aceita esse controle, mas ele não é indispensável.",
+          "Não verificado: o Projeto Fênix ainda não encontrou uma fonte confiável sobre esse controle."
+        ] },
+        { "type": "h", "text": "Por que não presumimos compatibilidade" },
+        { "type": "p", "text": "O navegador oferece suporte à API Gamepad, mas isso não significa que cada jogo use um controle conectado. Por isso, o Projeto Fênix só marca um controle como compatível quando a informação vem da ficha do jogo, de seus autores ou de outra fonte identificada." },
+        { "type": "p", "text": "Quando você vir o estado 'não verificado', trate como uma lacuna de informação, não como uma incompatibilidade. A ficha de cada jogo mostra de onde veio a informação de controles." }
+      ],
+      "sources": []
+    },
+    {
+      "id": "p-port-recriacao-emulacao",
+      "slug": "port-recriacao-emulacao-qual-a-diferenca",
+      "title": "Port, recriação, emulação: qual é a diferença?",
+      "excerpt": "Os termos aparecem o tempo todo em jogos de navegador. Veja como o Projeto Fênix os distingue da plataforma original.",
+      "category": "Ports para navegador",
+      "tags": ["port", "recriação", "emulador", "conceitos"],
+      "publishedAt": "2026-11-05",
+      "updatedAt": "2026-11-05",
+      "author": "Equipe Projeto Fênix",
+      "readingMinutes": 4,
+      "cover": { "type": "generated", "motif": "hex", "seed": "post-ports" },
+      "featured": true,
+      "demo": true,
+      "body": [
+        { "type": "p", "text": "No catálogo, a plataforma de origem (por exemplo, PC ou Web) é uma informação e o tipo de projeto é outra. Um jogo pode ter nascido em um console e hoje ser acessado no navegador por caminhos bem diferentes." },
+        { "type": "h", "text": "Tipos de projeto" },
+        { "type": "ul", "items": [
+          "Web-native: criado desde o início para rodar no navegador.",
+          "Port: adaptação de um jogo existente para rodar em outra plataforma, no caso o navegador.",
+          "Recriação: reimplementação do jogo, escrita do zero para reproduzir seu comportamento.",
+          "Emulador: software que reproduz o funcionamento de um hardware ou sistema para executar jogos de outra plataforma.",
+          "Fangame: jogo feito por fãs, inspirado em uma obra existente.",
+          "ROM hack: modificação de um jogo original, aplicada sobre seus arquivos."
+        ] },
+        { "type": "p", "text": "O Projeto Fênix não hospeda jogos nem arquivos de ROM: o catálogo é um diretório que leva você ao endereço do projeto original, identificando sempre quando se trata de um projeto independente." }
+      ],
+      "sources": []
+    },
+    {
+      "id": "p-popularidade-local",
+      "slug": "popularidade-local-por-que-nao-ha-ranking-global",
+      "title": "Popularidade local: por que ainda não há ranking global",
+      "excerpt": "Sem servidor, as contagens de acesso existem apenas no seu navegador. Entenda como isso funciona e o que muda no futuro.",
+      "category": "Tecnologia",
+      "tags": ["privacidade", "popularidade", "localStorage"],
+      "publishedAt": "2026-11-05",
+      "updatedAt": "2026-11-05",
+      "author": "Equipe Projeto Fênix",
+      "readingMinutes": 3,
+      "cover": { "type": "generated", "motif": "tiles", "seed": "post-popularidade" },
+      "featured": false,
+      "demo": true,
+      "body": [
+        { "type": "p", "text": "O Projeto Fênix é um site estático: não há servidor guardando quantas pessoas abriram cada jogo. Por isso, as seções de popularidade usam somente os acessos registrados neste dispositivo." },
+        { "type": "h", "text": "O que fica salvo" },
+        { "type": "p", "text": "Favoritos, histórico e contagem de acessos ficam no armazenamento local do navegador. Nada disso é enviado para fora do seu aparelho e você pode apagar tudo, a qualquer momento, em Privacidade e preferências." },
+        { "type": "h", "text": "E no futuro?" },
+        { "type": "p", "text": "A arquitetura já separa a fonte de métricas do restante do site. Se um dia existir um serviço de métricas compartilhadas, o ranking poderá ser global, sempre indicando a origem e a data de atualização dos números." }
+      ],
+      "sources": []
+    },
+    {
+      "id": "p-jogando-em-sites-de-terceiros",
+      "slug": "jogando-em-sites-de-terceiros",
+      "title": "Jogando em sites de terceiros: o que o Projeto Fênix faz e não faz",
+      "excerpt": "Os jogos ficam hospedados em páginas de terceiros. Veja como o Projeto Fênix sinaliza isso e dicas simples para jogar com tranquilidade.",
+      "category": "Guias",
+      "tags": ["segurança", "links externos", "privacidade"],
+      "publishedAt": "2026-11-05",
+      "updatedAt": "2026-11-05",
+      "author": "Equipe Projeto Fênix",
+      "readingMinutes": 3,
+      "cover": { "type": "generated", "motif": "circuit", "seed": "post-terceiros" },
+      "featured": false,
+      "demo": true,
+      "body": [
+        { "type": "p", "text": "Quando você clica em Jogar agora, o Projeto Fênix abre o endereço do projeto em outra aba. A partir daí, você está em um site de terceiros, com suas próprias regras, política de privacidade e possíveis cookies." },
+        { "type": "h", "text": "O que fazemos" },
+        { "type": "ul", "items": [
+          "Mostramos o domínio de destino antes do clique, na ficha do jogo.",
+          "Abrimos os links externos com proteção contra acesso à aba de origem.",
+          "Registramos a origem das informações e a data em que o endereço foi verificado."
+        ] },
+        { "type": "h", "text": "Dicas rápidas" },
+        { "type": "ul", "items": [
+          "Leia a política de privacidade do site de destino antes de criar contas.",
+          "Evite digitar dados pessoais ou senhas reutilizadas em páginas que você não conhece.",
+          "Mantenha o navegador atualizado."
+        ] }
+      ],
+      "sources": []
+    },
+    {
+      "id": "p-preservacao-e-licencas",
+      "slug": "preservacao-de-jogos-e-licencas-abertas",
+      "title": "Preservação de jogos no navegador: por que a licença importa",
+      "excerpt": "Licenças abertas, como MIT, GPL e MPL, permitem que jogos sejam estudados, adaptados e mantidos vivos ao longo dos anos.",
+      "category": "Preservação de jogos",
+      "tags": ["licenças", "código aberto", "preservação"],
+      "publishedAt": "2026-11-05",
+      "updatedAt": "2026-11-05",
+      "author": "Equipe Projeto Fênix",
+      "readingMinutes": 4,
+      "cover": { "type": "generated", "motif": "peaks", "seed": "post-preservacao" },
+      "featured": true,
+      "demo": true,
+      "body": [
+        { "type": "p", "text": "Jogos de navegador costumam depender de um único endereço na internet. Quando o site sai do ar, o jogo desaparece. Já projetos com código aberto podem ser copiados, estudados e hospedados novamente por outras pessoas." },
+        { "type": "h", "text": "Alguns exemplos do catálogo" },
+        { "type": "ul", "items": [
+          "2048 é distribuído sob a licença MIT.",
+          "A Dark Room teve o código aberto sob a licença MPL 2.0.",
+          "Hextris é distribuído sob a GPL v3.",
+          "Lichess e Freeciv-web usam licenças da família AGPL/GPL."
+        ] },
+        { "type": "p", "text": "Cada ficha do Projeto Fênix registra a licença informada pelos autores. Isso não substitui a leitura do texto completo da licença quando você pretende reutilizar o código." }
+      ],
+      "sources": []
+    }
+  ]
+}

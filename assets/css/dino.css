@@ -1,0 +1,105 @@
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+body {
+    background-color: #0b0b0e; 
+    margin: 0;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.jogo {
+    width: 600px;
+    height: 200px;
+    background-color: #121212; 
+    border: 3px solid #333; 
+    border-radius: 8px; 
+    margin: auto; 
+    position: relative; 
+    overflow: hidden; 
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+}
+
+#dinossauro {
+    width: 50px;
+    height: 50px;
+    background-image: url(../images/games/Dino\ \(2\).png);
+    background-size: 50px 50px;
+    position: absolute;
+    left: 30px;
+    bottom: 0;
+    filter: invert(1); 
+    image-rendering: pixelated; 
+}
+
+#pontuacao {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    z-index: 1;
+    font-family: 'Press Start 2P', monospace; 
+    font-size: 11px;
+    color: #00ffcc; 
+}
+
+.mensagem-jogo {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    z-index: 2; 
+    transform: translate(-50%, -50%); 
+    padding: 15px 20px;
+    background-color: rgba(0, 0, 0, 0.85);
+    color: #fff;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 10px;
+    line-height: 1.8;
+    text-align: center;
+    border: 2px solid #00ffcc;
+    border-radius: 6px;
+    white-space: pre-line;
+}
+
+.pulo {
+    animation: pulo 0.8s linear;
+}
+
+@keyframes pulo {
+    0% {
+        transform: translateY(0);
+    }
+
+    35%, 65% {
+        transform: translateY(-100px);
+    }
+
+    100% {
+        transform: translateY(0);
+    }
+}
+
+#cacto {
+    width: 20px;
+    height: 40px;
+    position: absolute;
+    bottom: 0;
+    left: 100%;
+    background-image: url(../images/games/cactus\ \(2\).png);
+    background-size: 20px 40px;
+    filter: invert(1);     
+    image-rendering: pixelated;
+
+    animation: movimento-cacto 2.5s infinite linear;
+    animation-play-state: paused;
+}
+
+@keyframes movimento-cacto {
+    0% {
+        left: 100%;
+    }
+
+    100% {
+        left: -20px;
+    }
+}

@@ -14,23 +14,18 @@ export const config = Object.freeze({
     /** Caminhos dos dados (relativos à raiz do site). */
     dataPaths: Object.freeze({
         games: 'data/games.json',
-        posts: 'data/posts.json',
     }),
-
-    /** Blog: artigos por página e quantos destaques acompanham o artigo principal. */
-    blog: Object.freeze({ pageSize: 6, highlights: 2 }),
 
     /** Armazenamento local: chaves seguem `${prefixo}:v${versão}:${nome}`. */
     storage: Object.freeze({ prefix: 'projeto-fenix', version: 1 }),
 
-    /** Páginas principais (exatamente seis). */
+    /** Páginas principais. */
     nav: Object.freeze([
         { id: 'home', label: 'Início', href: 'index.html' },
         { id: 'tendencias', label: 'Tendências', href: 'tendencias.html' },
         { id: 'recentes', label: 'Recentes', href: 'recentes.html' },
         { id: 'catalogo', label: 'Todos os jogos', href: 'todos-os-jogos.html' },
         { id: 'generos', label: 'Gêneros', href: 'generos.html' },
-        { id: 'blog', label: 'Blog', href: 'blog.html' },
     ]),
 
     /** Regras dos selos de novidade (calculadas a partir das datas reais do catálogo). */

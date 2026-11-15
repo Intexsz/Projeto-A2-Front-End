@@ -1,15 +1,13 @@
 /**
- * Página inicial (index.html). Tudo é montado a partir do catálogo central (data/games.json)
- * e dos artigos (data/posts.json). Nada de dados fixos aqui.
+ * Página inicial (index.html). O conteúdo é montado a partir do catálogo central (data/games.json).
  */
 import { $, el, icon, clear, pluralize, hostOf } from '../modules/utils.js';
 import {
     loadCatalog, getAll, getFeatured, getRecent, getPopular, getGenres, getPlatforms,
     getWithControl, getForMobile, getStats, getRandom, getById, PROJECT_TYPES,
 } from '../modules/catalog.js';
-import { loadPosts, getFeaturedPost, getLatestPosts } from '../modules/posts.js';
 import {
-    createGameCard, createPostCard, createRail, renderEmpty, renderError, skeletonCards,
+    createGameCard, createRail, renderEmpty, renderError, skeletonCards,
     controlIndicators, badge, freshness,
 } from '../modules/components.js';
 import { coverSrc, coverSize } from '../modules/cover.js';
@@ -265,7 +263,6 @@ function renderControlSections() {
             title: 'Nenhum jogo com suporte a controle confirmado ainda',
             text: 'O Projeto Fênix só lista aqui jogos cuja ficha ou fonte confiável confirma o suporte a controle (gamepad). “Não verificado” não é tratado como compatível, e o suporte da API Gamepad do navegador não conta como prova.',
             iconName: 'info',
-            actions: [el('button', { class: 'btn btn--secondary btn--sm', type: 'button', dataset: { action: 'open-post', id: 'p-como-ler-controles' } }, 'Como ler os controles')],
         });
     }
 
@@ -282,7 +279,7 @@ function renderControlSections() {
 
 function genreCard(genre) {
     const [w, h] = coverSize('wide');
-    const src = coverSrc({ slug: genre.slug, cover: { type: 'generated', motif: genre.motif, seed: `genero-${genre.slug}` } }, 'wide');
+    const src = coverSrc({ slug: genre.slug, cover: { type: 'image', src: `assets/images/genres/${genre.slug}.svg`, motif: genre.motif, seed: `genero-${genre.slug}` } }, 'wide');
     return el('a', { class: 'genre-card', href: `generos.html?genero=${encodeURIComponent(genre.slug)}` },
         el('img', { class: 'genre-card__img', src, alt: '', width: w, height: h, loading: 'lazy', decoding: 'async' }),
         el('span', { class: 'genre-card__count' }, `${genre.count} ${pluralize(genre.count, 'jogo', 'jogos')}`),
@@ -349,25 +346,6 @@ function renderSpotlight(excludeId = null, { focusShuffle = false } = {}) {
     if (focusShuffle) $('.spotlight__actions .btn--ghost', root)?.focus();
 }
 
-/* ---------- Blog ---------- */
-
-async function renderBlog() {
-    const container = slot('blog');
-    clear(container).appendChild(el('div', { class: 'news-grid', 'aria-hidden': 'true' }, [0, 1, 2, 3, 4].map(() => el('div', { class: 'card card--skeleton post' }))));
-    try {
-        await loadPosts();
-    } catch (error) {
-        renderError(container, error, renderBlog);
-        return;
-    }
-    const featured = getFeaturedPost();
-    if (!featured) return renderEmpty(container, { title: 'Nenhum artigo publicado ainda', text: 'Os artigos ficam em data/posts.json.' });
-    const rest = getLatestPosts(4, featured.id);
-    clear(container).appendChild(
-        el('div', { class: 'news-grid' }, createPostCard(featured, { variant: 'feature' }), rest.map((post) => createPostCard(post)))
-    );
-}
-
 /* ---------- Inicialização ---------- */
 
 function showCatalogError(error) {
@@ -379,7 +357,6 @@ async function start() {
     SLOTS_AFTER_HERO.forEach((name) => slot(name)?.closest('section')?.removeAttribute('hidden'));
     ['popular', 'recent', 'gamepad', 'mobile'].forEach((name) => rowSkeleton(slot(name)));
 
-    renderBlog(); // independente do catálogo
     try {
         await loadCatalog();
     } catch (error) {

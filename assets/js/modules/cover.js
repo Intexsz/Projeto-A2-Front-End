@@ -198,7 +198,7 @@ function buildSvg(item, variant) {
 }
 
 /**
- * URL da capa de um jogo ou artigo. Usa a imagem autorizada (`cover.type = "image"`) quando existir;
+ * URL da capa de um jogo. Usa a imagem autorizada (`cover.type = "image"`) quando existir;
  * caso contrário, gera a arte original. `variant`: poster (3:4), wide (16:9), banner (21:9), thumb.
  */
 export function coverSrc(item, variant = 'poster') {

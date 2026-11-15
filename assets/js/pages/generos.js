@@ -41,8 +41,8 @@ const countGames = (n) => `${fmt(n)} ${pluralize(n, 'jogo', 'jogos')}`;
 const genreOf = (slug) => genres.find((g) => g.slug === slug) ?? null;
 const blank = () => ({ ...createEmptyFilters(), genres: state.selected ? [state.selected] : [] });
 
-/** Cada gênero tem arte gerada própria (mesma semente da página inicial) e a cor de destaque da paleta dessa arte. */
-const coverItem = (genre) => ({ slug: `genero-${genre.slug}`, cover: { type: 'generated', motif: genre.motif, seed: `genero-${genre.slug}` } });
+/** Cada gênero tem arte própria (SVG em assets/images/genres, a mesma da página inicial); a cor de destaque segue a semente. */
+const coverItem = (genre) => ({ slug: `genero-${genre.slug}`, cover: { type: 'image', src: `assets/images/genres/${genre.slug}.svg`, motif: genre.motif, seed: `genero-${genre.slug}` } });
 
 /* ---------- Estado <-> URL ---------- */
 

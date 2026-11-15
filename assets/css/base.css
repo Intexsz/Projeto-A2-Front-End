@@ -347,13 +347,18 @@ h1, h2, h3, h4 {
     inset: auto;
     top: 0;
     left: 0;
-    z-index: 10000;
+    z-index: 2147483647;
     width: 440px;
     height: 440px;
     pointer-events: none;
     mix-blend-mode: screen;
     contain: strict;
     will-change: transform;
+}
+
+body.fire-cursor-enabled,
+body.fire-cursor-enabled * {
+    cursor: none !important;
 }
 
 /* ---------- Utilitários ---------- */

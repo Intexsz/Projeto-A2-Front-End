@@ -1,9 +1,9 @@
 /**
- * Componentes de interface compartilhados entre as seis páginas.
+ * Componentes de interface compartilhados entre as páginas.
  * Tudo é construído com `el()` (createElement/textContent) — nenhum innerHTML com dados externos.
  *
  * Ações globais (event delegation, ver `initGlobalActions`) — atributo `data-action`:
- *   open-game · toggle-fav · play · open-search · open-library · open-privacy · random-game · open-post · copy-post-link · close-dialog
+ *   open-game · toggle-fav · play · open-search · open-library · open-privacy · random-game · close-dialog
  */
 import { config } from '../config.js';
 import { el, icon, $, $$, clear, formatDate, hostOf, daysSince, pluralize, prefersReducedMotion, trapFocus } from './utils.js';
@@ -12,7 +12,6 @@ import {
   CONTROL_KEYS, CONTROL_LABELS, CONTROL_STATE_LABELS, PROJECT_TYPES, DEV_STATUS, SAVE_LABELS,
   PLAYER_LABELS, DEVICE_LABELS, LINK_STATUS_LABELS, isAccepted,
 } from './catalog.js';
-import { loadPosts, getPostById, getRelatedPosts } from './posts.js';
 import { coverSrc, coverSize } from './cover.js';
 import {
   getFavorites, isFavorite, toggleFavorite, removeFavorite, clearFavorites,
@@ -21,6 +20,7 @@ import {
 import { metrics } from './metrics.js';
 import { getPrefs, setPrefs, clearAll, isPersistent } from './storage.js';
 import { mountSearchBox, highlight } from './search.js';
+import { getCurrentUser } from './auth.js';
 
 /* =========================================================================
    Pequenos utilitários de interface
@@ -141,7 +141,7 @@ export function badge(text, kind = 'genre') {
 
 /**
  * Card de jogo. `variant`: poster (3:4) | wide (16:9) | row (lista com miniatura).
- * A área inteira é clicável pelo botão do título (abre a ficha); favoritar é um botão separado.
+ * Toda a área abre a ficha; favoritar permanece independente.
  */
 export function createGameCard(game, { variant = 'poster', rank = null, badge: showFresh = false, showDate = false, dateField = 'dateAdded', preferUpdate = false, now = Date.now(), eager = false, query = '' } = {}) {
   const coverVariant = variant === 'row' ? 'thumb' : variant === 'wide' ? 'wide' : 'poster';
@@ -176,12 +176,17 @@ export function createGameCard(game, { variant = 'poster', rank = null, badge: s
   // Pílula de plataforma sobre a capa (no UI kit de referência é a pílula de preço).
   const body = el('div', { class: 'card__body' }, el('span', { class: 'card__pill' }, game.platform), title, meta, controlIndicators(game));
 
-  // Painel que aparece no hover/foco (decorativo: o botão do título já abre a ficha).
+  // Painel de hover/foco: o texto e o CTA também abrem a ficha.
   const reveal = variant === 'poster'
-    ? el('div', { class: 'card__reveal', 'aria-hidden': 'true' },
+    ? el('div', { class: 'card__reveal' },
       el('p', { class: 'card__reveal-title' }, 'Sobre o jogo'),
       el('p', { class: 'card__reveal-text' }, game.shortDescription || 'Descrição não informada.'),
-      el('span', { class: 'card__reveal-cta' }, 'Ver ficha'))
+      el('button', {
+        class: 'card__reveal-cta',
+        type: 'button',
+        'aria-haspopup': 'dialog',
+        dataset: { action: 'open-game', id: game.id },
+      }, 'Ver ficha'))
     : null;
 
   const card = el('article', { class: `card card--${variant}`, dataset: { id: game.id } },
@@ -192,36 +197,14 @@ export function createGameCard(game, { variant = 'poster', rank = null, badge: s
     reveal,
     fav
   );
+  card.addEventListener('click', (event) => {
+    const target = event.target instanceof Element ? event.target : null;
+    if (target?.closest('[data-action="toggle-fav"], [data-action="open-game"]')) return;
+    const host = card.closest('dialog');
+    if (host && host.id !== 'game-dialog') host.close();
+    openGame(game.id);
+  });
   return card;
-}
-
-/**
- * Card de artigo do blog. `variant`: tile (padrão) | feature (grande) | compact.
- * A 1ª palavra do título recebe a cor de destaque (padrão do UI kit de referência).
- */
-export function createPostCard(post, { variant = 'tile', eager = false, query = '' } = {}) {
-  const [w, h] = coverSize('wide');
-  const date = formatDots(post.publishedAt);
-  const words = post.title.split(' ');
-  const first = words.shift();
-  const title = query
-    ? highlight(post.title, query)
-    : [el('span', { class: 'accent' }, first), words.length ? ` ${words.join(' ')}` : ''];
-  return el('article', { class: `post post--${variant}`, dataset: { id: post.id } },
-    el('img', { class: 'post__img', src: coverSrc(post, 'wide'), alt: '', width: w, height: h, loading: eager ? 'eager' : 'lazy', decoding: 'async' }),
-    el('div', { class: 'post__top' },
-      date && el('span', { class: 'pill-date' }, date),
-      post.demo && badge('Demonstração', 'demo')
-    ),
-    el('div', { class: 'post__body' },
-      el('p', { class: 'post__cat' }, post.category),
-      el('h3', { class: 'post__title' },
-        el('button', { class: 'post__open', type: 'button', 'aria-haspopup': 'dialog', dataset: { action: 'open-post', id: post.id } }, title)
-      ),
-      variant !== 'compact' && post.excerpt && el('p', { class: 'post__excerpt' }, query ? highlight(post.excerpt, query) : post.excerpt),
-      variant !== 'compact' && post.readingMinutes && el('p', { class: 'post__meta' }, icon('clock', { size: 14 }), `${post.readingMinutes} min de leitura`)
-    )
-  );
 }
 
 export function favButton(game) {
@@ -334,6 +317,27 @@ const closeButton = (label = 'Fechar') =>
 
 let headerRoot = null;
 
+function authTrigger() {
+  const user = getCurrentUser();
+  const safeAvatar = typeof user?.avatar === 'string' && /^https:\/\//i.test(user.avatar) ? user.avatar : '';
+  const avatar = safeAvatar
+    ? el('img', { class: 'auth-trigger__avatar', src: safeAvatar, alt: '', referrerpolicy: 'no-referrer' })
+    : user
+      ? el('span', { class: 'auth-trigger__initial', 'aria-hidden': 'true' }, (user.name || user.email || 'F').trim().charAt(0).toLocaleUpperCase('pt-BR'))
+      : icon('user', { size: 19 });
+  return el('a', {
+    class: `auth-trigger${user ? ' auth-trigger--signed-in' : ''}`,
+    href: 'login.html',
+    'aria-label': user ? `Minha conta: ${user.name || user.email}` : 'Entrar',
+    title: user ? `Minha conta: ${user.name || user.email}` : 'Entrar',
+  }, avatar, !user && el('span', { class: 'auth-trigger__label' }, 'Entrar'));
+}
+
+function syncAuthTrigger() {
+  const current = headerRoot && $('.auth-trigger', headerRoot);
+  if (current) current.replaceWith(authTrigger());
+}
+
 export function renderHeader(root, page) {
   headerRoot = root;
   clear(root);
@@ -341,8 +345,18 @@ export function renderHeader(root, page) {
   const navItems = config.nav.map((item) =>
     el('li', null, el('a', { class: 'nav__link', href: item.href, 'aria-current': item.id === page ? 'page' : null }, item.label))
   );
+  navItems.push(
+    el('li', null,
+      el('a', { class: 'nav__link dino-nav-link', href: 'dino.html', 'aria-label': 'Jogar Corrida Fênix', title: 'Jogar Corrida Fênix' },
+        el('img', { src: 'assets/images/dino/trex-icon.png', alt: '', width: 32, height: 34 })
+      )
+    )
+  );
   const mobileItems = config.nav.map((item) =>
     el('li', null, el('a', { class: 'mobile-nav__link', href: item.href, 'aria-current': item.id === page ? 'page' : null }, item.label))
+  );
+  mobileItems.push(
+    el('li', null, el('a', { class: 'mobile-nav__link', href: 'dino.html' }, 'Jogo do dinossauro'))
   );
 
   const toggle = el('button', {
@@ -392,11 +406,15 @@ export function renderHeader(root, page) {
           icon('heart', { size: 22 }),
           el('span', { class: 'count', id: 'fav-count', hidden: true })
         ),
+        authTrigger(),
         toggle
       )
     ),
     mobileNav
   );
+
+  window.addEventListener('projeto-fenix:auth-changed', syncAuthTrigger);
+  window.addEventListener('storage', syncAuthTrigger);
 
   const onScroll = () => root.classList.toggle('is-scrolled', window.scrollY > 8);
   window.addEventListener('scroll', onScroll, { passive: true });
@@ -420,7 +438,14 @@ export function renderFooter(root) {
   const col = (title, ...children) => el('div', { class: 'footer__col' }, el('h2', { class: 'footer__title' }, title), ...children);
   const contact = config.contact.email
     ? el('a', { href: `mailto:${config.contact.email}` }, config.contact.email)
-    : el('span', { class: 'footer__muted' }, 'Canal de contato em definição.');
+    : null;
+  const socialItems = [
+    ['YouTube', 'youtube.svg'],
+    ['Facebook', 'facebook.svg'],
+    ['Instagram', 'instagram.svg'],
+    ['TikTok', 'tiktok.svg'],
+    ['X', 'x-social.svg'],
+  ];
 
   root.append(
     el('div', { class: 'footer__inner container-wide' },
@@ -439,7 +464,14 @@ export function renderFooter(root) {
             el('li', null, el('button', { class: 'link-btn', type: 'button', dataset: { action: 'random-game' } }, 'Jogo aleatório'))
           )
         ),
-        col('Contato', el('p', { class: 'footer__text' }, contact))
+        col('Nossas redes sociais',
+          el('ul', { class: 'footer__socials', 'aria-label': 'Redes sociais' }, socialItems.map(([name, file]) =>
+            el('li', null, el('span', { class: 'footer__social', role: 'img', 'aria-label': name, title: name },
+              el('img', { src: `assets/icons/${file}`, alt: '', width: 24, height: 24, loading: 'lazy' })
+            ))
+          )),
+          contact && el('p', { class: 'footer__text' }, contact)
+        )
       ),
       el('div', { class: 'footer__legal' },
         el('p', null, `${config.name} é um diretório independente de jogos para navegador: não hospeda jogos nem arquivos, e leva você ao endereço do projeto original. Nomes e marcas pertencem aos seus respectivos titulares, sem afiliação oficial.`),
@@ -654,104 +686,6 @@ export async function openRandomGame() {
 }
 
 /* =========================================================================
-   Artigos (modal)
-   ========================================================================= */
-
-function renderBlock(block) {
-  switch (block.type) {
-    case 'h': return el('h3', { class: 'article__h' }, block.text);
-    case 'ul': return el('ul', { class: 'article__list' }, block.items.map((i) => el('li', null, i)));
-    case 'links': return el('ul', { class: 'article__list' }, block.items.map((i) => el('li', null, el('a', { href: i.url, target: '_blank', rel: 'noopener noreferrer' }, i.label))));
-    default: return el('p', null, block.text);
-  }
-}
-
-/** Ao fechar, remove `#artigo=` — mas só se ele ainda for o do artigo que estava aberto (evita apagar um link novo). */
-function clearPostHash(event) {
-  const shown = event?.currentTarget?.dataset.slug;
-  if (!location.hash.startsWith('#artigo=')) return;
-  if (shown && decodeURIComponent(location.hash.slice(8)) !== shown) return;
-  history.replaceState(null, '', `${location.pathname}${location.search}`);
-}
-
-/** Barra de progresso de leitura: acompanha a rolagem do próprio diálogo (ligada uma única vez por diálogo). */
-function bindReadingProgress(dialog) {
-  if (dialog.dataset.progress === 'on') return;
-  dialog.dataset.progress = 'on';
-  let frame = 0;
-  dialog.addEventListener('scroll', () => {
-    if (frame) return;
-    frame = requestAnimationFrame(() => {
-      frame = 0;
-      const bar = dialog.querySelector('.article__progress-bar');
-      const max = dialog.scrollHeight - dialog.clientHeight;
-      if (bar) bar.style.transform = `scaleX(${max > 0 ? Math.min(1, dialog.scrollTop / max) : 0})`;
-    });
-  }, { passive: true });
-}
-
-/** Link permanente do artigo: sempre aponta para a página do blog, qualquer que seja a página atual. */
-const postLink = (slug) => new URL(`blog.html#artigo=${encodeURIComponent(slug)}`, location.href).href;
-
-async function copyPostLink(slug) {
-  try {
-    await navigator.clipboard.writeText(postLink(slug));
-    toast('Link do artigo copiado.');
-  } catch {
-    toast('Não foi possível copiar automaticamente. Copie o endereço na barra do navegador.', { kind: 'error' });
-  }
-}
-
-export async function openPost(id) {
-  try {
-    await loadPosts();
-  } catch (error) {
-    toast(error instanceof CatalogError ? error.userMessage : 'Não foi possível carregar os artigos.', { kind: 'error' });
-    return;
-  }
-  const post = getPostById(id);
-  if (!post) {
-    toast('Artigo não encontrado.', { kind: 'error' });
-    return;
-  }
-  const [w, h] = coverSize('wide');
-  const related = getRelatedPosts(post, 3);
-  const dialog = ensureDialog('post-dialog', 'dialog--article', clearPostHash);
-  dialog.setAttribute('aria-labelledby', 'post-dialog-title');
-  dialog.dataset.slug = post.slug;
-  bindReadingProgress(dialog);
-  clear(dialog).appendChild(
-    el('article', { class: 'article' },
-      el('div', { class: 'article__progress', 'aria-hidden': 'true' }, el('span', { class: 'article__progress-bar' })),
-      closeButton('Fechar artigo'),
-      el('img', { class: 'article__cover', src: coverSrc(post, 'wide'), alt: '', width: w, height: h, decoding: 'async' }),
-      el('div', { class: 'article__content' },
-        el('div', { class: 'article__badges' },
-          el('a', { class: 'badge badge--genre badge--link', href: `blog.html?categoria=${encodeURIComponent(post.categorySlug)}`, dataset: { blogFilter: 'categoria', value: post.categorySlug }, 'aria-label': `Ver artigos da categoria ${post.category}` }, post.category),
-          post.demo && badge('Texto de demonstração', 'demo')),
-        el('h2', { class: 'article__title', id: 'post-dialog-title' }, post.title),
-        el('div', { class: 'article__byline' },
-          el('p', { class: 'article__meta' },
-            [post.author, post.publishedAt && formatDate(post.publishedAt), post.readingMinutes && `${post.readingMinutes} min de leitura`].filter(Boolean).join(' · ')),
-          el('button', { class: 'btn btn--ghost btn--sm', type: 'button', dataset: { action: 'copy-post-link', slug: post.slug } }, icon('link', { size: 16 }), 'Copiar link')),
-        post.demo && el('p', { class: 'callout callout--info' }, icon('info', { size: 18 }), el('span', null, 'Conteúdo editorial de demonstração escrito para o Projeto Fênix. Não é uma notícia e será revisado antes da publicação definitiva.')),
-        el('div', { class: 'article__body' }, post.body.map(renderBlock)),
-        post.tags.length > 0 && el('ul', { class: 'tags', 'aria-label': 'Tags do artigo' }, post.tags.map((t, i) =>
-          el('li', null, el('a', { class: 'tag tag--link', href: `blog.html?tag=${encodeURIComponent(post.tagSlugs[i])}`, dataset: { blogFilter: 'tag', value: post.tagSlugs[i] }, 'aria-label': `Ver artigos com a tag ${t}` }, `#${t}`)))),
-        post.sources.length > 0 && el('div', { class: 'sheet__block' }, el('h3', { class: 'sheet__h' }, 'Fontes'), el('ul', { class: 'sources' }, post.sources.map((s) => el('li', null, el('a', { href: s.url, target: '_blank', rel: 'noopener noreferrer' }, s.label))))),
-        related.length > 0 && el('section', { class: 'article__related', 'aria-labelledby': 'post-related-title' },
-          el('h3', { class: 'sheet__h', id: 'post-related-title' }, 'Leia também'),
-          el('ul', { class: 'related-grid' }, related.map((r) => el('li', null, createPostCard(r, { variant: 'compact' }))))
-        )
-      )
-    )
-  );
-  if (!dialog.open) dialog.showModal();
-  dialog.scrollTop = 0;
-  history.replaceState(null, '', `${location.pathname}${location.search}#artigo=${post.slug}`);
-}
-
-/* =========================================================================
    Meus jogos: favoritos e histórico
    ========================================================================= */
 
@@ -877,9 +811,9 @@ export function openPrivacy() {
     el('div', { class: 'sheet sheet--single' },
       closeButton('Fechar privacidade e preferências'),
       el('div', { class: 'sheet__content policy' },
-        el('p', { class: 'eyebrow' }, 'Versão de demonstração · atualizada em 05/11/2026'),
+        el('p', { class: 'eyebrow' }, 'Versão de demonstração · atualizada em 14/11/2026'),
         el('h2', { class: 'sheet__title', id: 'privacy-dialog-title' }, 'Privacidade e preferências'),
-        el('p', { class: 'callout callout--info' }, icon('info', { size: 18 }), el('span', null, `O ${config.name} não pede cadastro, login, CPF, telefone nem qualquer dado pessoal para ser usado.`)),
+        el('p', { class: 'callout callout--info' }, icon('info', { size: 18 }), el('span', null, `O catálogo pode ser usado sem conta. O cadastro de demonstração é opcional e fica somente neste navegador.`)),
 
         el('section', { class: 'policy__section policy__prefs' },
           el('h3', { class: 'policy__h' }, 'Suas preferências'),
@@ -889,18 +823,20 @@ export function openPrivacy() {
             action('Limpar favoritos', clearFavorites, 'Favoritos removidos.'),
             action('Limpar histórico', clearHistory, 'Histórico limpo.'),
             action('Zerar acessos locais', () => metrics.reset(), 'Contagem de acessos zerada.'),
-            action('Apagar todos os dados do Projeto Fênix', () => { clearAll(); updateFavCount(); window.dispatchEvent(new CustomEvent('projeto-fenix:favorites-changed', { detail: { id: null, active: false } })); window.dispatchEvent(new CustomEvent('projeto-fenix:history-changed')); window.dispatchEvent(new CustomEvent('projeto-fenix:prefs-changed')); dialog.close(); }, 'Todos os dados locais foram apagados.')
+            action('Apagar todos os dados do Projeto Fênix', () => { clearAll(); updateFavCount(); window.dispatchEvent(new CustomEvent('projeto-fenix:auth-changed')); window.dispatchEvent(new CustomEvent('projeto-fenix:favorites-changed', { detail: { id: null, active: false } })); window.dispatchEvent(new CustomEvent('projeto-fenix:history-changed')); window.dispatchEvent(new CustomEvent('projeto-fenix:prefs-changed')); dialog.close(); }, 'Todos os dados locais foram apagados.')
           )
         ),
 
         policySection('O que guardamos e onde', [
-          'Favoritos, histórico, contagem de acessos e preferências ficam no armazenamento local (localStorage) do seu navegador. Eles não são enviados para nenhum servidor e não identificam você.',
+          'Favoritos, histórico, contagem de acessos, preferências e a conta de demonstração ficam no armazenamento local (localStorage) do navegador. Não são enviados para um servidor.',
           isPersistent() ? 'O armazenamento local está disponível neste navegador.' : 'O armazenamento local está indisponível neste navegador (por exemplo, modo privado): seus dados duram apenas enquanto a aba estiver aberta.',
         ], [
           'projeto-fenix:v1:favorites — jogos favoritados.',
           'projeto-fenix:v1:history — jogos abertos recentemente (até 50, com data e hora).',
           'projeto-fenix:v1:access — quantas vezes você abriu cada jogo, neste dispositivo (total, data do último acesso e contagem por dia dos últimos 60 dias, usada no comparativo “em alta”).',
           'projeto-fenix:v1:prefs — suas preferências desta janela.',
+          'projeto-fenix:v1:auth:users — nome, e-mail e hash com salt da senha; não guarda a senha em texto puro.',
+          'projeto-fenix:v1:auth:session — sessão local da conta neste navegador.',
         ]),
         policySection('Popularidade local', ['As seções “mais populares” e “mais acessados” usam somente os acessos registrados neste dispositivo. Não são estatísticas globais.']),
         policySection('Cookies e serviços externos', [
@@ -944,11 +880,6 @@ function handleHash() {
       const game = getBySlug(hash.slice(6));
       if (game) openGame(game.id, { updateHash: false });
     }).catch(() => {});
-  } else if (hash.startsWith('#artigo=')) {
-    loadPosts().then((posts) => {
-      const post = posts.find((p) => p.slug === hash.slice(8));
-      if (post) openPost(post.id);
-    }).catch(() => {});
   }
 }
 
@@ -965,6 +896,14 @@ export function initGlobalActions() {
         break;
       }
       case 'toggle-fav': {
+        if (!getCurrentUser()) {
+          const returnTo = `${location.pathname}${location.search}${location.hash}`;
+          const login = new URL('login.html', location.href);
+          login.searchParams.set('return', returnTo);
+          login.searchParams.set('reason', 'favorite');
+          location.assign(login.href);
+          break;
+        }
         event.preventDefault();
         const game = getById(id);
         const nowActive = toggleFavorite(id);
@@ -984,13 +923,6 @@ export function initGlobalActions() {
         break;
       }
       case 'random-game': openRandomGame(); break;
-      case 'open-post': {
-        const host = target.closest('dialog');
-        if (host && host.id !== 'post-dialog') host.close();
-        openPost(id);
-        break;
-      }
-      case 'copy-post-link': copyPostLink(target.dataset.slug); break;
       case 'close-dialog': target.closest('dialog')?.close(); break;
       case 'lib-remove':
         if (target.dataset.kind === 'fav') removeFavorite(id);

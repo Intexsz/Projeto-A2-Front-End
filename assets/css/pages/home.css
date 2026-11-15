@@ -1,6 +1,6 @@
 /* =========================================================================
    Projeto Fênix — pages/home.css  (index.html)
-   Hero com faixa de miniaturas, Game Explorer, gêneros/plataformas, spotlight, mosaico do blog, banner.
+   Hero com faixa de miniaturas, Game Explorer, gêneros/plataformas, spotlight e banner.
    SEM rem. Direção visual: docs/DESIGN_REFERENCE.md
    ========================================================================= */
 
@@ -16,6 +16,10 @@
     color: var(--accent);
     backdrop-filter: blur(6px);
     transition: background-color 0.2s, color 0.2s, transform 0.2s var(--ease);
+}
+
+.hero__controls .circle-btn .icon {
+    stroke-width: 2.5;
 }
 
 .circle-btn:hover {
@@ -943,43 +947,6 @@
         width: 68px;
         height: 68px;
         margin: -34px 0 0 -34px;
-    }
-}
-
-/* ---------- Mosaico do blog ---------- */
-.news-grid {
-    display: grid;
-    grid-template-columns: 1.15fr 1fr 1fr;
-    grid-template-rows: repeat(2, minmax(236px, 1fr));
-    gap: 20px;
-}
-
-.news-grid>.post {
-    height: 100%;
-    min-height: 0;
-}
-
-.news-grid>.post:first-child {
-    grid-row: 1 / 3;
-}
-
-@media (max-width: 960px) {
-    .news-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        grid-template-rows: none;
-        grid-auto-rows: minmax(236px, auto);
-    }
-
-    .news-grid>.post:first-child {
-        grid-row: auto;
-        grid-column: 1 / -1;
-        min-height: 340px;
-    }
-}
-
-@media (max-width: 600px) {
-    .news-grid {
-        grid-template-columns: 1fr;
     }
 }
 

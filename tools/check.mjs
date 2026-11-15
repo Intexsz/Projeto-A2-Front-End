@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * Verificador estático do Projeto Fênix (sem dependências). Uso: `node tools/check.mjs` (ou `npm run check`).
- * Automatiza os critérios do brief: exatamente 6 páginas, CSS/JS externos, sem `rem`, sem eval/innerHTML,
+ * Automatiza os critérios do brief: sete páginas, CSS/JS externos, sem `rem`, sem eval/innerHTML,
  * caminhos de arquivos válidos, links externos seguros, sem recursos de terceiros e JSON consistente.
  * Código de saída 1 se houver ERRO; avisos não reprovam.
  */
@@ -58,22 +58,23 @@ const stripCss = (src) => src.replace(/\/\*[\s\S]*?\*\//g, '');
 
 /* ---------- 1. Estrutura obrigatória ---------- */
 const REQUIRED = [
-  'index.html', 'tendencias.html', 'recentes.html', 'todos-os-jogos.html', 'generos.html', 'blog.html',
+  'index.html', 'tendencias.html', 'recentes.html', 'todos-os-jogos.html', 'generos.html', 'login.html', 'registro.html',
   'assets/css/base.css', 'assets/css/components.css',
-  ...['home', 'tendencias', 'recentes', 'catalogo', 'generos', 'blog'].flatMap((p) => [`assets/css/pages/${p}.css`, `assets/js/pages/${p}.js`]),
+  ...['home', 'tendencias', 'recentes', 'catalogo', 'generos', 'auth'].flatMap((p) => [`assets/css/pages/${p}.css`, `assets/js/pages/${p}.js`]),
   'assets/js/main.js', 'assets/js/config.js',
-  ...['catalog', 'filters', 'storage', 'favorites', 'search', 'components', 'utils'].map((m) => `assets/js/modules/${m}.js`),
-  'data/games.json', 'data/posts.json',
+  ...['youtube.svg', 'facebook.svg', 'instagram.svg', 'tiktok.svg', 'x-social.svg'].map((file) => `assets/icons/${file}`),
+  ...['catalog', 'filters', 'storage', 'favorites', 'search', 'components', 'utils', 'auth'].map((m) => `assets/js/modules/${m}.js`),
+  'data/games.json', 'assets/images/backgrounds/Fundo.jpg',
   ...['PROJECT_BRIEF', 'ARCHITECTURE', 'PROGRESS', 'TASKS', 'DECISIONS', 'RESUME_PROMPT', 'DESIGN_REFERENCE', 'DATA_SCHEMA', 'CATALOG_IMPORT'].map((d) => `docs/${d}.md`),
   'README.md',
 ];
 for (const file of REQUIRED) if (!existsSync(join(root, file))) fail(file, 'arquivo obrigatório ausente');
 
-/* ---------- 2. Exatamente seis páginas ---------- */
+/* ---------- 2. Sete páginas ---------- */
 const rootHtml = readdirSync(root).filter((f) => f.endsWith('.html')).sort();
-if (rootHtml.length !== 6) fail('raiz', `esperadas 6 páginas HTML, encontradas ${rootHtml.length}: ${rootHtml.join(', ')}`);
+if (rootHtml.length !== 7) fail('raiz', `esperadas 7 páginas HTML, encontradas ${rootHtml.length}: ${rootHtml.join(', ')}`);
 const navHrefs = [...read(join(root, 'assets/js/config.js')).matchAll(/href:\s*'([^']+\.html)'/g)].map((m) => m[1]);
-if (navHrefs.length !== 6) fail('assets/js/config.js', `a navegação deve ter 6 páginas (tem ${navHrefs.length})`);
+if (navHrefs.length !== 5) fail('assets/js/config.js', `a navegação deve ter 5 páginas (tem ${navHrefs.length})`);
 navHrefs.forEach((h) => !existsSync(join(root, h)) && fail('assets/js/config.js', `a navegação aponta para ${h}, que não existe`));
 
 /* ---------- 3. HTML ---------- */
@@ -165,23 +166,10 @@ if (gamesDoc) {
     if (g.cover?.type === 'image' && httpUrl(g.cover.src ?? '')) warn(at, 'capa por hotlink externo — prefira hospedar localmente com permissão');
   }
 }
-const postsDoc = loadJson('data/posts.json');
-if (postsDoc) {
-  const ids = new Set();
-  for (const [i, p] of (postsDoc.posts ?? []).entries()) {
-    const at = `data/posts.json › ${p.id ?? `#${i}`}`;
-    for (const key of ['id', 'slug', 'title', 'category', 'publishedAt', 'body']) if (!p[key]?.length && p[key] !== 0) fail(at, `campo obrigatório ausente: ${key}`);
-    if (ids.has(p.id)) fail(at, 'id duplicado'); ids.add(p.id);
-    if (p.publishedAt && !ISO.test(p.publishedAt)) fail(at, 'publishedAt não está em AAAA-MM-DD');
-    if (typeof p.demo !== 'boolean') fail(at, 'campo "demo" (true/false) obrigatório: textos provisórios devem ser identificados');
-    (p.sources ?? []).forEach((s) => !httpUrl(s.url) && fail(at, `fonte com URL inválida: ${s.url}`));
-  }
-}
-
 /* ---------- Resultado ---------- */
 const jsCount = walk(join(root, 'assets/js'), '.js').length;
 const cssCount = walk(join(root, 'assets/css'), '.css').length;
-console.log(`Projeto Fênix check — ${rootHtml.length} páginas, ${cssCount} CSS, ${jsCount} JS, ${gamesDoc?.games?.length ?? 0} jogos, ${postsDoc?.posts?.length ?? 0} artigos`);
+console.log(`Projeto Fênix check — ${rootHtml.length} páginas, ${cssCount} CSS, ${jsCount} JS, ${gamesDoc?.games?.length ?? 0} jogos`);
 warnings.forEach((w) => console.log(`  AVISO  ${w}`));
 errors.forEach((e) => console.log(`  ERRO   ${e}`));
 if (errors.length) {

@@ -1,55 +1,42 @@
 # Projeto Fênix
 
-Portal de **descoberta de jogos que rodam no navegador**. O Projeto Fênix não hospeda jogos nem arquivos: ele cataloga projetos, mostra suas características (gêneros, plataforma de origem, controles aceitos…) e leva o visitante ao endereço **original** do projeto.
+Portal para descobrir jogos que rodam no navegador. O projeto cataloga os jogos e leva o visitante ao endereço original; não hospeda os jogos nem seus arquivos.
 
-- Stack: **HTML5 + CSS3 + JavaScript puro** (módulos ES). Sem frameworks, sem bibliotecas, sem build.
-- Idioma: pt-BR. Sem cadastro, sem cookies de rastreamento, sem analytics.
-- Seis páginas: `index`, `tendencias`, `recentes`, `todos-os-jogos`, `generos`, `blog`.
+- **Tecnologias:** HTML, CSS e JavaScript puro em módulos ES, sem etapa de build.
+- **Idioma:** português do Brasil.
+- **Páginas:** início, tendências, recentes, todos os jogos, gêneros, entrar e registro.
+- **Efeitos visuais:** brasas em Canvas e ponteiros flamejantes com círculos de faíscas.
+- Conta opcional de demonstração; sem cookies de rastreamento ou analytics.
 
 ## Como executar
 
-O site carrega JSON com `fetch()` e usa módulos ES, então **não funciona abrindo o arquivo direto (`file://`)**. Use um servidor HTTP local:
+O site usa `fetch()` e módulos ES, portanto precisa de um servidor HTTP local.
 
 ```bash
-# Opção 1 — servidor incluso (precisa só do Node.js 18+)
-node tools/serve.mjs          # abre em http://localhost:5173
-node tools/serve.mjs 8080     # outra porta
-
-# Opção 2 — VS Code: extensão "Live Server" → botão direito em index.html → Open with Live Server
+node tools/serve.mjs
 ```
 
-## Verificação automática
-
-```bash
-node tools/check.mjs
-```
-
-Confere: exatamente 6 páginas; CSS/JS externos; **nenhum `rem`**; sem `eval`/`innerHTML`; caminhos de arquivos e imports; links externos com `rel="noopener noreferrer"`; sem recursos de terceiros; JSON consistente (campos obrigatórios, fontes, datas, capas com crédito).
+Também é possível abrir `index.html` com a extensão Live Server do VS Code.
 
 ## Estrutura
 
 ```text
-index.html · tendencias.html · recentes.html · todos-os-jogos.html · generos.html · blog.html
-assets/css/{base,components}.css + pages/*.css
-assets/js/{config,main}.js + modules/*.js + pages/*.js
-assets/{fonts,icons,images}/
-data/{games,posts}.json
-docs/            ← documentação e continuidade (comece por docs/RESUME_PROMPT.md)
-tools/           ← serve.mjs e check.mjs
+index.html · tendencias.html · recentes.html · todos-os-jogos.html · generos.html
+assets/css/                  estilos globais e de cada página
+assets/js/                   configuração, páginas e módulos compartilhados
+assets/js/modules/fire-cursor.js  ponteiros flamejantes
+assets/js/modules/auth.js         contas locais de demonstração
+assets/images/               imagens, identidade visual e artes do catálogo
+data/games.json              catálogo de jogos
+login.html · registro.html   acesso e criação de conta
+docs/                        documentação do projeto
+tools/                       servidor e verificador estático
 ```
 
-## Configuração
+## Dados e configuração
 
-Nome do projeto, navegação, regras de selos de novidade e parâmetros ficam em `assets/js/config.js`. Para renomear o Projeto Fênix, altere `config.name` ali.
+O catálogo fica em `data/games.json`. Cada jogo deve ter fontes verificáveis; siga `docs/DATA_SCHEMA.md` e `docs/CATALOG_IMPORT.md`. Navegação e parâmetros gerais ficam em `assets/js/config.js`.
 
-## Adicionar jogos
+## Privacidade
 
-Edite `data/games.json` seguindo `docs/DATA_SCHEMA.md` e as regras de `docs/CATALOG_IMPORT.md` (toda entrada precisa de **fonte verificável**; nada de dados inventados). Rode `node tools/check.mjs` depois.
-
-## Privacidade (LGPD)
-
-Tudo o que o usuário faz (favoritos, histórico, contagem de acessos) fica **somente no `localStorage` do próprio navegador**, em chaves versionadas `projeto-fenix:v1:*`, e pode ser apagado na própria interface (Privacidade e preferências). A popularidade é **local**: nunca é apresentada como estatística global. Fontes (Inter e Oxanium) são autohospedadas — nenhuma requisição a terceiros ao carregar o site.
-
-## Estado do projeto
-
-As seis etapas do plano estão concluídas. Veja `docs/PROGRESS.md` e `docs/TASKS.md` (backlog). Para retomar o desenvolvimento em uma nova sessão, use o prompt de `docs/RESUME_PROMPT.md`.
+Favoritos, histórico e métricas de acesso ficam no `localStorage` do próprio navegador. A popularidade é local e não representa estatísticas globais. As fontes Inter e Oxanium são autohospedadas.

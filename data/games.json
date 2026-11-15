@@ -16,7 +16,7 @@
             },
             "images": [],
             "genres": [ "Corrida", "Mundo aberto"],
-            "platform": "PC", 
+            "platform": "PC",
             "players": {
                 "single": "yes",
                 "multi": "yes"},
@@ -30,7 +30,7 @@
                 "gamepad": "supported",
                 "touch": "unsupported"
             },
-            "controlsSource": "Jogabilidade disponível para controle, teclado e mouse.",
+            "controlsSource": "Jogabilidade disponível para controle e teclado e mouse.",
             "devices": {
                 "desktop": "yes",
                 "mobile": "yes"
@@ -349,6 +349,87 @@
                 "date": "2026-11-13"
             },
             "verifiedAt": "2026-11-13"
+        },
+        {
+            "id": "g-gta5",
+            "slug": "gta5",
+            "name": "Grand Theft Auto V",
+            "shortDescription": "Explore Los Santos, alterne entre Michael, Franklin e Trevor, participe de assaltos e descubra tudo o que o enorme mundo aberto de GTA V tem a oferecer diretamente no navegador.",
+            "description": "Em Grand Theft Auto V, explore Los Santos e o condado de Blaine County em uma aventura de mundo aberto repleta de ação, crimes, perseguições policiais e atividades variadas. A história acompanha três protagonistas: Michael De Santa, Franklin Clinton e Trevor Philips, cujas vidas se cruzam em uma sequência de missões cada vez mais perigosas.\n\nAlterne entre os três personagens, participe de assaltos elaborados, dirija uma enorme variedade de veículos, personalize automóveis, enfrente gangues e explore livremente cidades, desertos, montanhas e outras regiões do mapa.\n\nEsta versão disponibilizada pela Lemon Web Games utiliza tecnologia WebAssembly (WASM) para executar GTA V diretamente no navegador, sem depender do hardware original dos consoles. A experiência é voltada ao modo de um jogador e permite aproveitar a campanha e a exploração do mundo aberto.",
+            "cover": {
+                "type": "image",
+                "src": "assets/images/games/GTA5.png"
+            },
+            "images": [],
+            "genres": ["Ação", "Aventura", "Mundo aberto", "RPG"],
+            "platform": "PC",
+            "players": {
+                "single": "yes",
+                "multi": "no"
+            },
+            "dateAdded": "2026-10-17",
+            "dateUpdated": "2026-11-14",
+            "projectType": "port",
+            "playUrl": "https://www.lemon-web.net/applications/lemon-web-games#grandtheftauto5",
+            "officialUrl": "https://www.rockstargames.com/gta-v",
+            "controls": {
+                "keyboard": "required",
+                "mouse": "required",
+                "gamepad": "unsupported",
+                "touch": "unsupported"
+            },
+            "controlsSource": "A versão está catalogada como jogo WASM pela Lemon Web Games. Os requisitos específicos de teclado, mouse, gamepad e controles por toque não estão documentados individualmente; recomenda-se utilizar teclado e mouse em um computador.",
+            "devices": {
+                "desktop": "yes",
+                "mobile": "no"
+            },
+            "save": {
+                "status": "ok"
+            },
+            "languages": [
+                "Inglês"
+            ],
+            "tags": ["Grand Theft Auto", "GTA", "Rockstar Games", "Los Santos", "Mundo Aberto", "Assalto", "Tiro", "Ação", "Polícia"],
+            "developer": "Rockstar North / Rockstar Games",
+            "developmentStatus": "released",
+            "releaseYear": 2013,
+            "license": {
+                "name": "Proprietária (jogo original desenvolvido pela Rockstar North e publicado pela Rockstar Games; versão web independente, sem licença oficial confirmada)",
+                "url": "https://www.rockstargames.com/legal"
+            },
+            "sources": [
+                {
+                    "label": "Lemon Web Games — catálogo de jogos",
+                    "url": "https://www.lemon-web.net/applications/lemon-web-games"
+                },
+                {
+                    "label": "Lemon Web Solutions — artigo sobre Grand Theft Auto V",
+                    "url": "https://www.lemon-web.net/lemon-blog/games/grand-theft-auto-v-crime-chaos-heists-and-freedom-across-los-santos"
+                },
+                {
+                    "label": "Lemon Web Solutions — histórico de desenvolvimento",
+                    "url": "https://www.lemon-web.net/applications/development-diary"
+                },
+                {
+                    "label": "Rockstar Games — Grand Theft Auto V",
+                    "url": "https://www.rockstargames.com/gta-v"
+                },
+                {
+                    "label": "Rockstar Games — informações legais",
+                    "url": "https://www.rockstargames.com/legal"
+                }
+            ],
+            "editorial": {
+                "featured": false,
+                "featuredOrder": null
+            },
+            "knownIssues": [],
+            "linkCheck": {
+                "status": "partial",
+                "method": "O catálogo e o artigo oficial da Lemon Web confirmam a disponibilização de GTA V como jogo WASM. A execução completa, o desempenho e a persistência dos saves não foram verificados nesta checagem.",
+                "date": "2026-11-14"
+            },
+            "verifiedAt": "2026-11-14"
         }
     ]
 }
